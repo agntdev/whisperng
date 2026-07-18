@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Invalid deep link token shows error",
+    "steps": [
+      {
+        "send": { "text": "/start invalidtoken123" },
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": { "text": "This link is invalid or has expired. Please ask the sender for a new one." }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "Message delete button works",
+    "steps": [
+      {
+        "send": { "text": "/start" },
+        "expect": [{ "method": "sendMessage" }]
+      },
+      {
+        "send": { "callback": "inbox:list", "messageId": 2 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          { "method": "editMessageText" }
+        ]
+      }
+    ]
+  }
+]

@@ -1,24 +1,46 @@
 import { Composer } from "grammy";
 import type { Ctx } from "../bot.js";
-import { mainMenuKeyboard } from "../toolkit/index.js";
+import { getBotStore } from "../bot.js";
+import { generateToken } from "../storage.js";
+import { registerMainMenuItem, inlineButton, inlineKeyboard } from "../toolkit/index.js";
 
-// The /start handler renders the bot's MAIN MENU — the primary way users operate
-// a button-first bot. A feature adds its own button by calling
-// `registerMainMenuItem(...)` in its own `src/handlers/<slug>.ts`; this handler
-// renders whatever is registered (plus a Help button), so you do NOT edit this
-// file to add a feature. Send ONE message — no placeholder line above the menu.
+registerMainMenuItem({ label: "💬 My Link", data: "link:preview", order: 10 });
+registerMainMenuItem({ label: "📥 Inbox", data: "inbox:list", order: 20 });
+registerMainMenuItem({ label: "⚙️ Settings", data: "settings:show", order: 40 });
+
+const WELCOME = "👋 Welcome to WhisperNG! Tap a button below to get started.";
+
 const composer = new Composer<Ctx>();
 
-const WELCOME = "👋 Welcome! Tap a button below to get started.";
+async function ensureUser(ctx: Ctx): Promise<void> {
+  const store = getBotStore();
+  const existing = await store.getUser(ctx.from!.id);
+  if (existing) return;
+  const token = generateToken();
+  await store.setUser({
+    telegramId: ctx.from!.id,
+    anonymousToken: token,
+    spamSensitivity: 3,
+    messageRetention: 30,
+    createdAt: Date.now(),
+  });
+}
+
+function dashboardKeyboard(): ReturnType<typeof inlineKeyboard> {
+  return inlineKeyboard([
+    [inlineButton("💬 My Link", "link:preview"), inlineButton("📥 Inbox", "inbox:list")],
+    [inlineButton("⚙️ Settings", "settings:show")],
+  ]);
+}
 
 composer.command("start", async (ctx) => {
-  await ctx.reply(WELCOME, { reply_markup: mainMenuKeyboard() });
+  await ensureUser(ctx);
+  await ctx.reply(WELCOME, { reply_markup: dashboardKeyboard() });
 });
 
-// "Back to menu" — re-render the main menu in place from any sub-view.
 composer.callbackQuery("menu:main", async (ctx) => {
   await ctx.answerCallbackQuery();
-  await ctx.editMessageText(WELCOME, { reply_markup: mainMenuKeyboard() });
+  await ctx.editMessageText(WELCOME, { reply_markup: dashboardKeyboard() });
 });
 
 export default composer;

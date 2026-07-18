@@ -1,19 +1,22 @@
 [
   {
-    "name": "Inbox",
+    "name": "Inbox shows empty state",
     "steps": [
       {
+        "send": { "text": "/start" },
         "expect": [
+          { "method": "sendMessage" }
+        ]
+      },
+      {
+        "send": { "callback": "inbox:list", "messageId": 2 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
           {
-            "method": "sendMessage",
-            "payload": {
-              "text": "View active anonymous messages with moderation options"
-            }
+            "method": "editMessageText",
+            "payload": { "text": "📭 Your inbox is empty. Share your anonymous link to receive messages." }
           }
-        ],
-        "send": {
-          "callback": "inbox:list"
-        }
+        ]
       }
     ]
   }

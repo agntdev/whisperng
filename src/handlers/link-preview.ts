@@ -1,17 +1,40 @@
 import { Composer } from "grammy";
+import type { Ctx } from "../bot.js";
+import { getBotStore } from "../bot.js";
+import { inlineButton, inlineKeyboard } from "../toolkit/index.js";
 
-// SCAFFOLD — generated from the bot blueprint BEFORE the agent runs.
-// Keep a LIVE registration (.command / .callbackQuery / …) so this feature is
-// never an empty stub. Replace the reply body with real logic + copy; if you
-// change the user-facing text, update tests/specs to match EXACTLY.
-// Do NOT rewrite src/bot.ts — buildBot() already auto-loads this module.
-// Menu: wire this into /start via registerMainMenuItem({ label: "My Link", data: "link:preview" }) if the toolkit exposes it.
+const composer = new Composer<Ctx>();
 
-const composer = new Composer();
+function linkText(username: string, token: string): string {
+  return (
+    `🔗 Your anonymous link\n\n` +
+    `Share this link so anyone can send you anonymous messages:\n\n` +
+    `https://t.me/${username}?start=${token}\n\n` +
+    `Anyone who opens this link can message you without revealing who they are.`
+  );
+}
 
 composer.callbackQuery("link:preview", async (ctx) => {
   await ctx.answerCallbackQuery();
-  await ctx.reply("Display and manage personal anonymous link");
+  const store = getBotStore();
+  const user = await store.getUser(ctx.from!.id);
+  if (!user) {
+    await ctx.editMessageText("Something went wrong. Tap /start to try again.", {
+      reply_markup: inlineKeyboard([[inlineButton("⬅️ Back to menu", "menu:main")]]),
+    });
+    return;
+  }
+  const username = (ctx as any).botInfo?.username ?? "bot";
+  await ctx.editMessageText(linkText(username, user.anonymousToken), {
+    reply_markup: inlineKeyboard([
+      [inlineButton("📋 Copy link", `link:copy:${user.anonymousToken}`)],
+      [inlineButton("⬅️ Back to menu", "menu:main")],
+    ]),
+  });
+});
+
+composer.callbackQuery(/^link:copy:(.+)$/, async (ctx) => {
+  await ctx.answerCallbackQuery({ text: "Link copied!" });
 });
 
 export default composer;
