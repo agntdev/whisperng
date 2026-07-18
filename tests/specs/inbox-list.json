@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Inbox",
+    "steps": [
+      {
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "View active anonymous messages with moderation options"
+            }
+          }
+        ],
+        "send": {
+          "callback": "inbox:list"
+        }
+      }
+    ]
+  }
+]
