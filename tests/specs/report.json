@@ -1,19 +1,15 @@
 [
   {
-    "name": "/report",
+    "name": "/report guides the user to the inbox",
     "steps": [
       {
+        "send": { "text": "/report" },
         "expect": [
           {
             "method": "sendMessage",
-            "payload": {
-              "text": "Submit abuse report for current message"
-            }
+            "payload": { "text": "To report a message, open your Inbox, tap 🚩 Report on the message, and choose a reason." }
           }
-        ],
-        "send": {
-          "text": "/report"
-        }
+        ]
       }
     ]
   }

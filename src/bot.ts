@@ -1,15 +1,25 @@
 import { Composer } from "grammy";
 import { readdirSync } from "node:fs";
 import { createBot, type BotContext } from "./toolkit/index.js";
+import { getStore, type Store } from "./storage.js";
 
 // The per-chat session shape (ephemeral conversation state only). Extend as the
 // bot grows. Durable domain data must NOT live here — use the toolkit's
 // persistent storage (see AGENTS.md).
 export interface Session {
-  // example: step?: "awaiting_amount";
+  step?: string;
+  incomingToken?: string;
+  replyToMessageId?: string;
 }
 
 export type Ctx = BotContext<Session>;
+
+// Module-level store singleton, set once in buildBot.
+let _store: Store | null = null;
+export function getBotStore(): Store {
+  if (!_store) _store = getStore();
+  return _store;
+}
 
 /**
  * buildBot — assembles the bot, AUTO-LOADS every feature handler from
@@ -21,6 +31,8 @@ export async function buildBot(token: string) {
   const bot = createBot<Session>(token, {
     initial: () => ({}),
   });
+
+  _store = getStore();
 
   const dir = new URL("./handlers/", import.meta.url);
   let files: string[] = [];

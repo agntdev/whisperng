@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Moderation reports view shows empty state",
+    "steps": [
+      {
+        "send": { "callback": "mod:reports", "messageId": 1 },
+        "expect": [
+          { "method": "answerCallbackQuery" },
+          {
+            "method": "editMessageText",
+            "payload": { "text": "✅ No pending reports. All clear!" }
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,19 +1,13 @@
 [
   {
-    "name": "My Link",
+    "name": "My Link shows the anonymous link",
     "steps": [
       {
+        "send": { "callback": "link:preview", "messageId": 1 },
         "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "Display and manage personal anonymous link"
-            }
-          }
-        ],
-        "send": {
-          "callback": "link:preview"
-        }
+          { "method": "answerCallbackQuery" },
+          { "method": "editMessageText" }
+        ]
       }
     ]
   }
