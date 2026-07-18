@@ -1,0 +1,20 @@
+[
+  {
+    "name": "My Link",
+    "steps": [
+      {
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Display and manage personal anonymous link"
+            }
+          }
+        ],
+        "send": {
+          "callback": "link:preview"
+        }
+      }
+    ]
+  }
+]
